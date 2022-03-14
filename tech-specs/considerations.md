@@ -1,3 +1,5 @@
+# Considerations for all technical specifications
+
 - [ ] Behavioural outline
 - [ ] Temporal (ex start and end date ranges)
 - [ ] Scope (ex single team, multiple teams)
@@ -16,3 +18,4 @@
 - [ ] Feature flag required?
 - [ ] Common components
 - [ ] Security review
+...
