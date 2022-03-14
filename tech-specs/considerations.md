@@ -1,18 +1,18 @@
-- [ ] Security team review
 - [ ] Behavioural outline
-- [ ] Algorithm
-- [ ] Database schema changes
-- [ ] Performance and scalability considerations
-- [ ] Mobile needs
-- [ ] Websockets
-- [ ] REST APIs (new or updates)
-- [ ] Plugin APIs
 - [ ] Temporal (ex start and end date ranges)
 - [ ] Scope (ex single team, multiple teams)
+- [ ] Algorithm
+- [ ] Design patterns that could be used
+- [ ] Database schema changes needed
+- [ ] Performance and scalability considerations
+- [ ] Mobile needs
+- [ ] Websockets requirements
+- [ ] REST APIs additions or changes
+- [ ] Plugin APIs needs
 - [ ] Authorization (new or existing permissions, team or channel membership, group membership, board and playbook access)
-- [ ] Guest visibility/access
-- [ ] QA considerations
-- [ ] Licensing
-- [ ] Configuration (system config)
-- [ ] Feature flag
+- [ ] Guest access?
+- [ ] Which licenses will have access?
+- [ ] New system configuration option required?
+- [ ] Feature flag required?
 - [ ] Common components
+- [ ] Security review
