@@ -52,9 +52,10 @@ GET /api/v4/users/me/teams/ax96ny1bspdfted1tsdpecc9xc/channels/top?page=0&per_pa
 ## Algorithm
 
 ### Query exploration
+There is a column in the channel table that contains the total message count but unfortunately it includes bot messages.
 
 #### Top 5 channels in a team
-This query will filter all public channels in a team along with private channels that a user is a member of.
+This query will filter all public channels in a team along with private channels that a user is a member of. It will exclude system messages and bot messages in order to get a true count of user messages.
 ```
 SELECT p.channelid, count(p.id) AS post_count 
 FROM posts p 
@@ -63,9 +64,29 @@ LEFT JOIN channelmembers cm on p.channelid = cm.channelid and cm.userid = 'dck4r
 WHERE p.deleteat = 0 
 AND p.createat > 1646571442991 
 AND p.type = ''
+AND (p.props->>'from_bot' IS NULL OR p.props->>'from_bot' = 'false')
 AND c.deleteat = 0
 AND c.teamid = 'ax96ny1bspdfted1tsdpecc9xc'
 AND (c.type = 'O' OR (c.type = 'P' AND (cm.userid = 'dck4rimf8tr1fm8uuddc3ojgkw')))
+Group By p.channelid
+ORDER BY post_count DESC
+LIMIT 5
+```
+
+#### Top 5 of my channels in a team
+This query will filter public and private channels that I am a member of in a particular team. It will exclude system messages and bot messages in order to get a true count of user messages.
+```
+SELECT p.channelid, count(p.id) AS post_count 
+FROM posts p 
+LEFT JOIN channels c on p.channelid = c.id
+LEFT JOIN channelmembers cm on p.channelid = cm.channelid and cm.userid = 'dck4rimf8tr1fm8uuddc3ojgkw'
+WHERE p.deleteat = 0 
+AND p.createat > 1646571442991 
+AND p.type = ''
+AND (p.props->>'from_bot' IS NULL OR p.props->>'from_bot' = 'false')
+AND c.deleteat = 0
+AND c.teamid = 'ax96ny1bspdfted1tsdpecc9xc'
+AND ((c.type = 'O' AND (cm.userid = 'dck4rimf8tr1fm8uuddc3ojgkw')) OR (c.type = 'P' AND (cm.userid = 'dck4rimf8tr1fm8uuddc3ojgkw')))
 Group By p.channelid
 ORDER BY post_count DESC
 LIMIT 5
