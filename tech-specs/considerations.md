@@ -18,3 +18,4 @@
 - [ ] Feature flag required?
 - [ ] Common components
 - [ ] Security review
+- [ ] Telemetry
