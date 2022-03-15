@@ -53,16 +53,22 @@ GET /api/v4/users/me/teams/ax96ny1bspdfted1tsdpecc9xc/channels/top?page=0&per_pa
 
 ### Query exploration
 
-Top 5 channels by post counts:
+#### Top 5 channels in a team
+This query will filter all public channels in a team along with private channels that a user is a member of.
 ```
 SELECT p.channelid, count(p.id) AS post_count 
 FROM posts p 
+LEFT JOIN channels c on p.channelid = c.id
+LEFT JOIN channelmembers cm on p.channelid = cm.channelid and cm.userid = 'dck4rimf8tr1fm8uuddc3ojgkw'
 WHERE p.deleteat = 0 
 AND p.createat > 1646571442991 
 AND p.type = ''
+AND c.deleteat = 0
+AND c.teamid = 'ax96ny1bspdfted1tsdpecc9xc'
+AND (c.type = 'O' OR (c.type = 'P' AND (cm.userid = 'dck4rimf8tr1fm8uuddc3ojgkw')))
 Group By p.channelid
 ORDER BY post_count DESC
-LIMIT 5;
+LIMIT 5
 ```
 **The below queries are not needed for MVP**
 
