@@ -139,3 +139,8 @@ I’m guessing the overarching feature of insights will have a license and each 
 
 ## Configs/feature flags
 This widget will need it’s own config to enable/disable it
+
+## Common Components
+For the line chart we can reuse the existing LineChart component with some changes. 
+
+We could reuse the the card component but would need to change some styles.
