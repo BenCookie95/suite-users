@@ -29,18 +29,47 @@ GET /api/v4/posts/top?page=0&per_page=5&since=<timestamp>&team_id=123
 
 #### Team view
 Top threads in all public channels and private channels I am a member of. This stays the same regardless of CRT and auto-follow configs.
-```
-SELECT t.*
-FROM threads t 
-LEFT JOIN posts p ON p.id = t.postid
-LEFT JOIN channels c ON p.channelid = c.id
-LEFT JOIN channelmembers cm on c.id = cm.channelid
-WHERE p.createat > 1647459618000
-AND c.teamid = 'jp35a14seb8b38t3r6pg8yp3ih'
-AND (c.type = 'O' OR (c.type = 'P' AND (cm.userid = 'bpej86jfpfyd7rtgzoe6prd5ih')))
-GROUP BY t.postid
-ORDER BY t.replycount DESC
-LIMIT 5;
+
+```sql
+(
+    SELECT
+        t.*
+    FROM
+        channelmembers cm
+        LEFT JOIN threads t ON t.channelid = cm.channelid
+        LEFT JOIN posts p ON p.id = t.postid
+        LEFT JOIN channels c ON p.channelid = c.id
+    WHERE
+        cm.userid = '1ztefh3wxjft5cr4h8c9xzq73y'
+        AND c.type = 'P'
+        AND c.teamid = '1r4g1enno7nb3exz3t6s5fdmsw'
+        AND p.createat > 1644350407311
+    GROUP BY
+        t.postid
+    ORDER BY
+        t.replycount DESC
+    LIMIT
+        5
+)
+UNION
+ALL (
+    SELECT
+        t.*
+    FROM
+        threads t
+        LEFT JOIN posts p ON p.id = t.postid
+        LEFT JOIN channels c ON p.channelid = c.id
+    WHERE
+        p.createat > 1612900807311
+        AND c.teamid = '1r4g1enno7nb3exz3t6s5fdmsw'
+        AND c.type = 'O'
+    GROUP BY
+        t.postid
+    ORDER BY
+        t.replycount DESC
+    LIMIT
+        5
+);
 ```
 
 #### My top threads 
