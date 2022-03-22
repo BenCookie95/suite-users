@@ -75,22 +75,88 @@ LIMIT 5
 ```
 
 ```sql
--- Top 5 Reactions for a User
+-- Top 5 Reactions for a User (Across entire workspace)
 SELECT
 	emojiname,
 	count(emojiname) AS emoji_count
 FROM
 	reactions r
+	INNER JOIN posts p ON r.postid = p.id
+ 	INNER JOIN channels c ON p.channelid = c.id
 WHERE
 	r.deleteat = 0
-	AND r.userid = 'user123'
-	AND r.createat > 1646923727584
+	AND r.userid = '1ztefh3wxjft5cr4h8c9xzq73y'
+	AND r.createat > 0
 GROUP BY
 	r.emojiname
 ORDER BY
 	emoji_count DESC
 LIMIT 5
 ```
+
+```sql
+-- Top 5 Reactions for a User (Scoped to a team excluding DMs/GMs)
+SELECT
+	emojiname,
+	count(emojiname) AS emoji_count
+FROM
+	reactions r
+	INNER JOIN posts p ON r.postid = p.id
+ 	INNER JOIN channels c ON p.channelid = c.id
+WHERE
+	r.deleteat = 0
+	AND c.teamid = '1r4g1enno7nb3exz3t6s5fdmsw'
+	AND r.userid = '1ztefh3wxjft5cr4h8c9xzq73y'
+	AND r.createat > 0
+GROUP BY
+	r.emojiname
+ORDER BY
+	emoji_count DESC
+LIMIT 5
+```
+
+```sql
+-- Top 5 Reactions for a User (Scoped to a team including DMs/GMs)
+SELECT DISTINCT
+		emojiname,
+		SUM(emoji_count) OVER (PARTITION BY emojiname) AS emoji_total 
+	FROM
+		((  SELECT
+				emojiname,
+				count(emojiname) as emoji_count
+			FROM
+				reactions r
+				INNER JOIN posts p ON r.postid = p.id
+				INNER JOIN channels c ON p.channelid = c.id
+			WHERE
+				r.deleteat = 0
+				AND c.teamid = '1r4g1enno7nb3exz3t6s5fdmsw'
+				AND r.userid = 'zzfn3e81etf4mbyekg8gkgczre'
+				AND r.createat > 0
+			GROUP BY
+				r.emojiname
+		) UNION ALL (
+			SELECT
+				emojiname,
+				count(emojiname) as emoji_count
+			FROM
+				reactions r
+				INNER JOIN posts p ON r.postid = p.id
+				INNER JOIN channels c ON p.channelid = c.id
+			WHERE
+				r.deleteat = 0
+				AND r.userid = 'zzfn3e81etf4mbyekg8gkgczre'
+				AND(c.type = 'D'
+					OR c.type = 'G')
+				AND r.createat > 0
+			GROUP BY
+				r.emojiname
+		)) AS TOP_EMOJIS
+ORDER BY
+	emoji_total DESC
+LIMIT 5
+```
+
 
 ## Design Patterns That Could be Used
 
@@ -104,7 +170,7 @@ LIMIT 5
 
 ## Scope
 - Top reactions across the team (including public/private channels)
-- Top reactions for the current user across the workspace (including public/private/DM/GM channels)
+- Top reactions for the current user (within the team)
 
 ## Authorization
 - Does each individual widget require a permission?
