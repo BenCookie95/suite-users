@@ -121,6 +121,7 @@ This widget will need it’s own config to enable/disable it.
 
 ## Common Components
 - The widget (and its inner elements) will be common components shared across the insights component.
+- The bar graph used for the top 5 reactions is shared with the top channels bar graph.
 
 ## Security Review
 
