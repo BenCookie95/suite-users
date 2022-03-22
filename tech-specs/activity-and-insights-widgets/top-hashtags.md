@@ -5,7 +5,8 @@
 
 ```sql
 -- top team hashtags (postgres)
--- this does not scale well
+-- this does not scale well if there are a lot of posts with hashtags
+-- it seems to be fine with lots of posts
 select
     (unnest(STRING_TO_ARRAY(hashtags, ' '))) as hashtag,
     count(*) occurences
