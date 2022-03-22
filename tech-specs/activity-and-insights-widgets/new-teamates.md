@@ -18,13 +18,13 @@ We need to add a new field to teammembers in order to record the date people joi
 ```
 GET /api/v4/teammembers?page=0&per_page=60&member_since=<timestamp>&team_id=123
 ```
-```json
+```
 [
     {
-        "team_id": "123",
-        "user_id": "string",
+        team_id: "123",
+        user_id: "string",
         ...otherTeamMemberInfo,
-        "member_since": 1646571442991,
+        member_since: 1646571442991,
     },
     ...
 ]
