@@ -16,22 +16,24 @@ There are concerns regarding query performance when we do fetch the data for a t
 ## Rest APIs
 New endpoint to get top reactions (for a given team and user).
 
-`time_range`:
-- `1_day`
-- `7_day`
-- `30_day`
+#### Parameters:
+- `time_range`:
+    - `1_day`
+    - `7_day`
+    - `30_day`
+- `page`
+- `per_page`
 
 ### Team
 ```
 GET /api/v4/reactions/top/team/<team_id>?time_range=1_day&page=0&per_page=5
 ```
-```
+```json
 [
 	{
-        emoji_name: 'smile',
-        emoji_count: 100,
+        "emoji_name": "smile",
+        "count": 100,
 	},
-    ...
 ]
 ```
 
@@ -39,15 +41,17 @@ GET /api/v4/reactions/top/team/<team_id>?time_range=1_day&page=0&per_page=5
 ```
 GET /api/v4/reactions/top/user/<user_id>?time_range=1_day&page=0&per_page=5
 ```
-```
+```json
 [
 	{
-        emoji_name: 'smile',
-        emoji_count: 100,
+        "emoji_name": "smile",
+        "count": 100,
 	},
-    ...
 ]
 ```
+
+- `emoji_name` is a `string` that contains the name of the emoji.
+- `count` is an `int64` and represents the number of times that emoji was used.
 
 ## Plugins
 
@@ -74,6 +78,7 @@ GROUP BY
 ORDER BY
 	emoji_count DESC
 LIMIT 5
+OFFSET 0
 ```
 
 ```sql
