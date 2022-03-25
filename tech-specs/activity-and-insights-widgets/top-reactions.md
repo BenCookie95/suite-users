@@ -16,17 +16,20 @@ There are concerns regarding query performance when we do fetch the data for a t
 ## Rest APIs
 New endpoint to get top reactions (for a given team and user).
 
+`time_range`:
+- `1_day`
+- `7_days`
+- `28_days`
 
 ### Team
 ```
-GET /api/v4/reactions/top?page=0&per_page=5&since=<timestamp>&team_id=team123
+GET /api/v4/reactions/top/team/<team_id>?time_range=1_day&page=0&per_page=5
 ```
 ```
 [
 	{
         emoji_name: 'smile',
         emoji_count: 100,
-        ...otherReactionInfo,
 	},
     ...
 ]
@@ -34,14 +37,13 @@ GET /api/v4/reactions/top?page=0&per_page=5&since=<timestamp>&team_id=team123
 
 ### User
 ```
-GET /api/v4/reactions/top?page=0&per_page=5&since=<timestamp>&user_id=user123
+GET /api/v4/reactions/top/user/<user_id>?time_range=1_day&page=0&per_page=5
 ```
 ```
 [
 	{
         emoji_name: 'smile',
         emoji_count: 100,
-        ...otherReactionInfo,
 	},
     ...
 ]
