@@ -19,7 +19,7 @@ New endpoint to get top reactions (for a given team and user).
 `time_range`:
 - `1_day`
 - `7_day`
-- `28_day`
+- `30_day`
 
 ### Team
 ```
