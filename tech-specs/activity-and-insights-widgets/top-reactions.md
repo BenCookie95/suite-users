@@ -38,9 +38,17 @@ GET /api/v4/reactions/top/team/<team_id>?time_range=1_day&page=0&per_page=5
 ```
 
 ### User
+
+**Across the workspace**
 ```
 GET /api/v4/reactions/top/user/<user_id>?time_range=1_day&page=0&per_page=5
 ```
+
+**Scoped to team**
+```
+GET /api/v4/reactions/top/user/<user_id>?time_range=1_day&page=0&per_page=5&team_id=<team_id>
+```
+
 ```json
 [
 	{
@@ -61,107 +69,106 @@ GET /api/v4/reactions/top/user/<user_id>?time_range=1_day&page=0&per_page=5
 ### Queries
 ```sql
 -- Top 5 Reactions for a Team
-SELECT
-	emojiname,
-	count(emojiname) AS emoji_count
-FROM
-	reactions r
-	INNER JOIN posts p ON r.postid = p.id
-	INNER JOIN channels c ON p.channelid = c.id
-	INNER JOIN teams t ON c.teamid = t.id
-WHERE
-	r.deleteat = 0
-	AND t.id = 'team123'
-	AND r.createat > 1646923727584
-GROUP BY
-	r.emojiname
-ORDER BY
-	emoji_count DESC
-LIMIT 5
-OFFSET 0
-```
-
-```sql
--- Top 5 Reactions for a User (Across entire workspace)
-SELECT
-	emojiname,
-	count(emojiname) AS emoji_count
-FROM
-	reactions r
-	INNER JOIN posts p ON r.postid = p.id
- 	INNER JOIN channels c ON p.channelid = c.id
-WHERE
-	r.deleteat = 0
-	AND r.userid = '1ztefh3wxjft5cr4h8c9xzq73y'
-	AND r.createat > 0
-GROUP BY
-	r.emojiname
-ORDER BY
-	emoji_count DESC
-LIMIT 5
-```
-
-```sql
--- Top 5 Reactions for a User (Scoped to a team excluding DMs/GMs)
-SELECT
-	emojiname,
-	count(emojiname) AS emoji_count
-FROM
-	reactions r
-	INNER JOIN posts p ON r.postid = p.id
- 	INNER JOIN channels c ON p.channelid = c.id
-WHERE
-	r.deleteat = 0
-	AND c.teamid = '1r4g1enno7nb3exz3t6s5fdmsw'
-	AND r.userid = '1ztefh3wxjft5cr4h8c9xzq73y'
-	AND r.createat > 0
-GROUP BY
-	r.emojiname
-ORDER BY
-	emoji_count DESC
-LIMIT 5
-```
-
-```sql
--- Top 5 Reactions for a User (Scoped to a team including DMs/GMs)
 SELECT DISTINCT
-		emojiname,
-		SUM(emoji_count) OVER (PARTITION BY emojiname) AS emoji_total 
-	FROM
-		((  SELECT
-				emojiname,
-				count(emojiname) as emoji_count
-			FROM
-				reactions r
-				INNER JOIN posts p ON r.postid = p.id
-				INNER JOIN channels c ON p.channelid = c.id
-			WHERE
-				r.deleteat = 0
-				AND c.teamid = '1r4g1enno7nb3exz3t6s5fdmsw'
-				AND r.userid = 'zzfn3e81etf4mbyekg8gkgczre'
-				AND r.createat > 0
-			GROUP BY
-				r.emojiname
-		) UNION ALL (
-			SELECT
-				emojiname,
-				count(emojiname) as emoji_count
-			FROM
-				reactions r
-				INNER JOIN posts p ON r.postid = p.id
-				INNER JOIN channels c ON p.channelid = c.id
-			WHERE
-				r.deleteat = 0
-				AND r.userid = 'zzfn3e81etf4mbyekg8gkgczre'
-				AND(c.type = 'D'
-					OR c.type = 'G')
-				AND r.createat > 0
-			GROUP BY
-				r.emojiname
-		)) AS TOP_EMOJIS
+	EmojiName,
+	SUM(EmojiCount) OVER (PARTITION BY EmojiName) AS Count
+FROM ((
+		SELECT
+			EmojiName,
+			count(EmojiName) AS EmojiCount
+		FROM
+			ChannelMembers
+			INNER JOIN Channels ON ChannelMembers.ChannelId = Channels.Id
+			INNER JOIN Posts ON Channels.Id = Posts.ChannelId
+			INNER JOIN Reactions ON Posts.Id = Reactions.PostId			
+		WHERE
+			ChannelMembers.UserId = ?
+			AND Channels.Type = 'P'
+			AND Reactions.DeleteAt = 0
+			AND Channels.TeamId = ?
+			AND Reactions.CreateAt > ?
+		GROUP BY
+			Reactions.EmojiName)
+	UNION ALL (
+		SELECT
+			EmojiName,
+			count(EmojiName) AS EmojiCount
+		FROM
+			Reactions
+			INNER JOIN Posts ON Reactions.PostId = Posts.Id
+			INNER JOIN Channels ON Posts.ChannelId = Channels.Id
+		WHERE
+			Reactions.DeleteAt = 0
+			AND Channels.Type = 'O'
+			AND Channels.TeamId = ?
+			AND Reactions.CreateAt > ?
+		GROUP BY
+			Reactions.EmojiName)) AS A
 ORDER BY
-	emoji_total DESC
-LIMIT 5
+	Count DESC
+LIMIT ?
+OFFSET ?
+```
+
+```sql
+-- Top 5 Reactions for a User (Across entire workspace incl. DMs/GMs)
+SELECT
+	EmojiName,
+	count(EmojiName) as Count
+FROM
+	Reactions
+WHERE
+	Reactions.DeleteAt = 0
+	AND Reactions.UserId = ?
+	AND Reactions.CreateAt > ?
+GROUP BY
+	Reactions.EmojiName
+ORDER BY
+	Count DESC
+LIMIT ?
+OFFSET ?
+```
+
+```sql
+-- Top 5 Reactions for a User (Scoped to a team incl. DMs/GMs)
+SELECT DISTINCT
+	EmojiName,
+	SUM(EmojiCount) OVER (PARTITION BY EmojiName) AS Count
+FROM ((
+	SELECT
+		EmojiName,
+		count(EmojiName) as EmojiCount
+	FROM
+		Reactions
+		INNER JOIN Posts ON Reactions.PostId = Posts.Id
+		INNER JOIN Channels ON Posts.ChannelId = Channels.id
+	WHERE
+		Reactions.DeleteAt = 0
+		AND Channels.TeamId = ?
+		AND Reactions.UserId = ? 
+		AND Reactions.CreateAt > ?
+	GROUP BY
+			Reactions.EmojiName)
+UNION ALL (
+	SELECT
+		EmojiName,
+		count(EmojiName) as EmojiCount
+	FROM
+		Reactions
+		INNER JOIN Posts ON Reactions.PostId = Posts.Id
+		INNER JOIN Channels ON Posts.ChannelId = Channels.id
+	WHERE
+		Reactions.DeleteAt = 0
+		AND Reactions.UserId = ?
+		AND (Channels.type = 'D' OR Channels.type = 'G')
+		AND Reactions.CreateAt > ?
+	GROUP BY
+		Reactions.EmojiName
+)) AS A
+ORDER BY
+	Count DESC
+LIMIT ?
+OFFSET ?`
 ```
 
 
@@ -173,11 +180,14 @@ LIMIT 5
 ## Temporal
 - Last 24 hours
 - Last 7 days
-- Last 28 days
+- Last 30 days
 
 ## Scope
-- Top reactions across the team (including public/private channels)
-- Top reactions for the current user (within the team)
+- **Team**
+	- All public channels and private channels that the user is a member of
+- **User**
+	- All posts that the user has reacted to within the team and DMs/GMs *or*
+	- All posts that the user has reacted to across the workspace (incl. DMs/GMs)
 
 ## Authorization
 - Does each individual widget require a permission?
@@ -190,7 +200,8 @@ This is up for debate, guests are only granted access to certain channels so sho
 - Match overall feature license
 
 ## Configs/Feature Flags
-This widget will need it’s own config to enable/disable it.
+- API follows `InsightsEnabled` feature flag.
+- This widget will need it’s own config to enable/disable it on the front-end.
 
 ## Common Components
 - The widget (and its inner elements) will be common components shared across the insights component.
