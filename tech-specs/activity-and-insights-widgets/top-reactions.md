@@ -69,9 +69,9 @@ GET /api/v4/reactions/top/user/<user_id>?time_range=1_day&page=0&per_page=5&team
 ### Queries
 ```sql
 -- Top 5 Reactions for a Team
-SELECT DISTINCT
+SELECT
 	EmojiName,
-	SUM(EmojiCount) OVER (PARTITION BY EmojiName) AS Count
+	sum(EmojiCount) AS Count
 FROM ((
 		SELECT
 			EmojiName,
@@ -80,11 +80,11 @@ FROM ((
 			ChannelMembers
 			INNER JOIN Channels ON ChannelMembers.ChannelId = Channels.Id
 			INNER JOIN Posts ON Channels.Id = Posts.ChannelId
-			INNER JOIN Reactions ON Posts.Id = Reactions.PostId			
+			INNER JOIN Reactions ON Posts.Id = Reactions.PostId
 		WHERE
-			ChannelMembers.UserId = ?
+			Reactions.DeleteAt = 0
+			AND ChannelMembers.UserId = ?
 			AND Channels.Type = 'P'
-			AND Reactions.DeleteAt = 0
 			AND Channels.TeamId = ?
 			AND Reactions.CreateAt > ?
 		GROUP BY
@@ -104,17 +104,17 @@ FROM ((
 			AND Reactions.CreateAt > ?
 		GROUP BY
 			Reactions.EmojiName)) AS A
+GROUP BY
+	EmojiName
 ORDER BY
 	Count DESC
-LIMIT ?
-OFFSET ?
 ```
 
 ```sql
 -- Top 5 Reactions for a User (Across entire workspace incl. DMs/GMs)
 SELECT
 	EmojiName,
-	count(EmojiName) as Count
+	count(EmojiName) AS Count
 FROM
 	Reactions
 WHERE
@@ -125,50 +125,47 @@ GROUP BY
 	Reactions.EmojiName
 ORDER BY
 	Count DESC
-LIMIT ?
-OFFSET ?
 ```
 
 ```sql
 -- Top 5 Reactions for a User (Scoped to a team incl. DMs/GMs)
-SELECT DISTINCT
+SELECT
 	EmojiName,
-	SUM(EmojiCount) OVER (PARTITION BY EmojiName) AS Count
+	sum(EmojiCount) AS Count
 FROM ((
-	SELECT
-		EmojiName,
-		count(EmojiName) as EmojiCount
-	FROM
-		Reactions
-		INNER JOIN Posts ON Reactions.PostId = Posts.Id
-		INNER JOIN Channels ON Posts.ChannelId = Channels.id
-	WHERE
-		Reactions.DeleteAt = 0
-		AND Channels.TeamId = ?
-		AND Reactions.UserId = ? 
-		AND Reactions.CreateAt > ?
-	GROUP BY
+		SELECT
+			EmojiName,
+			count(EmojiName) AS EmojiCount
+		FROM
+			Reactions
+			INNER JOIN Posts ON Reactions.PostId = Posts.Id
+			INNER JOIN Channels ON Posts.ChannelId = Channels.Id
+		WHERE
+			Reactions.DeleteAt = 0
+			AND Reactions.UserId = ?
+			AND Channels.TeamId = ?
+			AND Reactions.CreateAt > ?
+		GROUP BY
 			Reactions.EmojiName)
-UNION ALL (
-	SELECT
-		EmojiName,
-		count(EmojiName) as EmojiCount
-	FROM
-		Reactions
-		INNER JOIN Posts ON Reactions.PostId = Posts.Id
-		INNER JOIN Channels ON Posts.ChannelId = Channels.id
-	WHERE
-		Reactions.DeleteAt = 0
-		AND Reactions.UserId = ?
-		AND (Channels.type = 'D' OR Channels.type = 'G')
-		AND Reactions.CreateAt > ?
-	GROUP BY
-		Reactions.EmojiName
-)) AS A
+	UNION ALL (
+		SELECT
+			EmojiName,
+			count(EmojiName) AS EmojiCount
+		FROM
+			Reactions
+			INNER JOIN Posts ON Reactions.PostId = Posts.Id
+			INNER JOIN Channels ON Posts.ChannelId = Channels.Id
+		WHERE
+			Reactions.DeleteAt = 0
+			AND Reactions.UserId = ?
+			AND (Channels.Type = 'D' OR Channels.Type = 'G')
+			AND Reactions.CreateAt > ?
+		GROUP BY
+			Reactions.EmojiName)) AS A
+GROUP BY
+	EmojiName
 ORDER BY
 	Count DESC
-LIMIT ?
-OFFSET ?`
 ```
 
 
