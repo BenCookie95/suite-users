@@ -16,50 +16,47 @@ There are concerns regarding query performance when we do fetch the data for a t
 ## Rest APIs
 New endpoint to get top reactions (for a given team and user).
 
-#### Parameters:
-- `time_range`:
-    - `1_day`
-    - `7_day`
-    - `30_day`
-- `page`
-- `per_page`
+This also introduces a new parameter `time_range`, which scopes the request to reactions from a certain time range.
+- `1_day`: Last 24 hours
+- `7_day`: Last 7 days
+- `28_day`: Last 28 days
 
-### Team
-```
-GET /api/v4/reactions/top/team/<team_id>?time_range=1_day&page=0&per_page=5
-```
-```json
-[
-	{
-        "emoji_name": "smile",
-        "count": 100,
-	},
-]
-```
+### Sample Requests
 
-### User
-
-**Across the workspace**
+Top Reactions for a Team:
 ```
-GET /api/v4/reactions/top/user/<user_id>?time_range=1_day&page=0&per_page=5
+http://localhost:8065/api/v4/teams/{{team_id}}/top/reactions?time_range=28_day&page=0&per_page=5
 ```
-
-**Scoped to team**
 ```
-GET /api/v4/reactions/top/user/<user_id>?time_range=1_day&page=0&per_page=5&team_id=<team_id>
+{
+"has_next": false,
+ "items:": [
+    {"rank": 1, "emoji_name":"blush","count":74},
+    {"rank": 2, "emoji_name":"-1","count":66},
+    {"rank": 3, "emoji_name":"+1","count":62},
+    {"rank": 4, "emoji_name":"heart","count":55}
+  ]
+}
 ```
-
-```json
-[
-	{
-        "emoji_name": "smile",
-        "count": 100,
-	},
-]
+Top Reactions for a User (Scoped to Team):
+```
+http://localhost:8065/api/v4/users/me/top/reactions?time_range=28_day&page=0&per_page=5&team_id={{team_id}}
+```
+```
+{
+"has_next": false,
+ "items:": [
+    {"rank": 1, "emoji_name":"blush","count":10},
+    {"rank": 2, "emoji_name":"-1","count":9},
+    {"rank": 3, "emoji_name":"+1","count":7},
+    {"rank": 4, "emoji_name":"heart","count":3}
+  ]
+}
 ```
 
-- `emoji_name` is a `string` that contains the name of the emoji.
-- `count` is an `int64` and represents the number of times that emoji was used.
+- `has_next` indicates if there are more responses that can be fetched by incrementing the page. 
+- `rank` is the rank of the emoji (by `count`) and will track across pages (i.e. if you fetch the second page with a limit of 5, the ranks would be 6 through 10).
+
 
 ## Plugins
 
