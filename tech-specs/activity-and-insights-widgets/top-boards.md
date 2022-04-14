@@ -1,29 +1,25 @@
 # Tech Spec: Top Boards, My Top Boards
 
-## Components 
-
-1. Board icon
-    * What do we show if it's empty? Boards don't have an icon by default so it could be the most common case.
-1. Board name
-    * Do we show the channel name if the board name is blank?
-1. Count of cards added
-    * Just cards added? Other resources that can be created and updated include:
-        * [ ] view
-        * [ ] text
-        * [ ] comment
-        * [ ] image
-    * Just creates, no updates?
-1. Avatars of participants
-    * What constitues a "participant"? Anyone who has created or updated any resource in the board during the time range?
-1. My boards
-    * What makes a board "mine"? Boards I am the creator of or boards I participated in any way (create or update in the time range)?
-
-## Top boards: Most active boards for the team
+## Screenshots
 
 ![](./screenshots/top-boards-team.png)
-
-## My top boards: Most active boards I've participated in
 
 ![](./screenshots/top-boards-my.png)
 
 ![](./screenshots/top-boards-my-modal.png)
+
+
+## Components 
+
+1. Board icon or default dartboard icon
+1. Board name or `(Untitled Board)`
+1. Count of cards added (tbd: new copy for "22 cards added")
+    * `card` created or edited
+    * `comment` created or edited
+    * `text` created or edited
+1. Avatars of participants
+    * a "participant" is anyone who is "active" in the given period 
+    * "active" means they were the `modified_by` or `created_by` user of a `card`, `comment`, or `text`
+    * include the `creator_by` user in the participants list even if they were not active
+1. My boards
+    * A board is "mine" if I was active during the given period
