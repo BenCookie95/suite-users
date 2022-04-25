@@ -23,6 +23,8 @@ See iteration 6 in the [Figma design](https://www.figma.com/file/fKyLulu6MUjQzQa
 
 ## SQL
 
+The below SQL is not yet optimized.
+
 ### Top boards (postgres)
 
 ```sql
