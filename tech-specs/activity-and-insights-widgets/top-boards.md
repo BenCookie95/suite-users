@@ -23,7 +23,7 @@ See iteration 6 in the [Figma design](https://www.figma.com/file/fKyLulu6MUjQzQa
 
 ## SQL
 
-### Top boards
+### Top boards (postgres)
 
 ```sql
 select
@@ -83,7 +83,7 @@ limit
 	4;
 ```
 
-### My top boards
+### My top boards (postgres)
 
 ```sql
 select
