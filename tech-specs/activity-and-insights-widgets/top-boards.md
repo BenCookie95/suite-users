@@ -4,7 +4,7 @@
 
 See iteration 6 in the [Figma design](https://www.figma.com/file/fKyLulu6MUjQzQa9pBFFrC/Insights-and-Analytics?node-id=548%3A102444).
 
-## Components 
+## Widget Components 
 
 1. Board icon or default dartboard icon if the board has no custom icon
 1. Board name or `(Untitled Board)` if the name hasn't been set
