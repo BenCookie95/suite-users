@@ -33,42 +33,47 @@ Top threads in all public channels and private channels I am a member of. This s
 ```sql
 (
     SELECT
-        t.*
+        t.postid,
+        t.replycount,
+        t.channelid,
+        c.displayname
     FROM
-        channelmembers cm
-        LEFT JOIN threads t ON t.channelid = cm.channelid
-        LEFT JOIN posts p ON p.id = t.postid
-        LEFT JOIN channels c ON p.channelid = c.id
+        threads t
+        LEFT JOIN PublicChannels c ON t.channelid = c.id
     WHERE
-        cm.userid = '1ztefh3wxjft5cr4h8c9xzq73y'
-        AND c.type = 'P'
-        AND c.teamid = '1r4g1enno7nb3exz3t6s5fdmsw'
-        AND p.createat > 1644350407311
+        t.lastreplyat > 1648239422000
+        AND c.teamid = 'hxxc8obejfd1fcyw5ng9kw7hxc'
     GROUP BY
-        t.postid
+        t.postid,
+        c.displayname
     ORDER BY
         t.replycount DESC
     LIMIT
-        5
+        10
 )
 UNION
 ALL (
     SELECT
-        t.*
+        t.postid,
+        t.replycount,
+        t.channelid,
+        c.displayname
     FROM
-        threads t
-        LEFT JOIN posts p ON p.id = t.postid
-        LEFT JOIN channels c ON p.channelid = c.id
+        channelmembers cm
+        LEFT JOIN threads t ON t.channelid = cm.channelid
+        LEFT JOIN channels c ON t.channelid = c.id
     WHERE
-        p.createat > 1612900807311
-        AND c.teamid = '1r4g1enno7nb3exz3t6s5fdmsw'
-        AND c.type = 'O'
+        cm.userid = '4acxdugfriyyp8ax34dtj11b7e'
+        AND c.type = 'P'
+        AND c.teamid = 'hxxc8obejfd1fcyw5ng9kw7hxc'
+        AND t.lastreplyat > 1648239422000
     GROUP BY
-        t.postid
+        t.postid,
+        c.displayname
     ORDER BY
         t.replycount DESC
     LIMIT
-        5
+        10
 );
 ```
 
