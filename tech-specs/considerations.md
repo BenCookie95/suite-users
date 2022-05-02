@@ -19,3 +19,4 @@
 - [ ] Common components
 - [ ] Security review
 - [ ] Telemetry
+- [ ] Do we need Redux?
