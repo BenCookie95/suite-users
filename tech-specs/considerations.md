@@ -19,4 +19,5 @@
 - [ ] Common components
 - [ ] Security review
 - [ ] Telemetry
-- [ ] Do we need Redux?
+- [ ] Do is need Redux?
+- [ ] Can it handle rollbacks?
