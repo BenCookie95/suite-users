@@ -21,3 +21,4 @@
 - [ ] Telemetry
 - [ ] Do is need Redux?
 - [ ] Can it handle rollbacks?
+- [ ] Documentation needs
