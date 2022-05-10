@@ -22,3 +22,4 @@
 - [ ] Do is need Redux?
 - [ ] Can it handle rollbacks?
 - [ ] Documentation needs
+- [ ] How should bots be handled?
